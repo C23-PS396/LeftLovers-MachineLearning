@@ -51,7 +51,7 @@ def get_contbased_recoms(user_profile):
       user_arr = np.array([[float(x) for x in user_profile.split(',')]])
       scaled_user = scaler_user.transform(user_arr)
       n_restaurant = item_vector.shape[0]
-      user_vector = np.tile(user_arr, (n_restaurant,1))
+      user_vector = np.tile(scaled_user, (n_restaurant,1))
 
       # predictions
       yp = model.predict([user_vector, item_vector])
