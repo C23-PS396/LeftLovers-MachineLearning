@@ -11,7 +11,7 @@ The dataset can be found here: [Zomato Food](https://www.kaggle.com/datasets/ahm
 Install depedencies
 
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 then run, the server on the terminal using
