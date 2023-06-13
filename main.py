@@ -8,6 +8,8 @@ import os
 import json
 import pickle
 import sklearn
+import datetime
+from db_connection import cursor, conn
 # to run python3 -m uvicorn main:app --reload
 
 app = FastAPI()
@@ -15,7 +17,6 @@ app = FastAPI()
 ORIGINS = ['*']
 METHODS = ['*']
 HEADERS = ['*']
-
 
 PICKLE_PATH = './pickle-objects/'
 CSV_PATH = './csv-files/'
@@ -48,7 +49,7 @@ model, scaler_user, scaler_target, item_vector, restaurant_df = load_assests()
 
 
 def get_contbased_recoms(user_profile):
-      user_arr = np.array([[float(x) for x in user_profile.split(',')]])
+      user_arr = user_profile
       scaled_user = scaler_user.transform(user_arr)
       n_restaurant = item_vector.shape[0]
       user_vector = np.tile(scaled_user, (n_restaurant,1))
@@ -68,13 +69,41 @@ async def root():
       return {"message" : "Selamat Datang!"}
 
 
+@app.get("/updateUserProfile")
+async def update_user_profile(user_id: str, cuisine: str):
+      cuisine_arr = [x.strip().lower() for x in cuisine.split(',')]
+      res_cui_arr = ['burgers','fast food','sandwich','healthy','asian','comfort food','family meals','mexican','breakfast and brunch','desserts','pizza','salads','chicken','convenience','italian','everyday essentials','wings','family friendly','latin american','snacks']
+      temp = [0] * 20
+      s_20 = [f"\"u{i+1}\"" for i in range(20)]
+      for cui in cuisine_arr:
+            if cui in res_cui_arr:
+                  ind = res_cui_arr.index(cui)
+                  temp[ind] += 1
+      
+      cursor.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
+      res = cursor.fetchall()[0]
+      
+      for i in range(len(res)):
+            temp[i] += res[i]
+
+      values = temp
+      columns = ", ".join([f'"u{i+1}"=%s' for i in range(20)])
+      res = cursor.execute('UPDATE "UserProfile" SET ' + columns + ' WHERE "id" = %s;', values + [user_id])
+      conn.commit()
+      return '200'
+
+
 @app.get("/getPrediction")
-async def get_prediction(user_profile: str, restaurant_id: int = None):
-      n = 10
+async def get_prediction(user_id: str):
+      s_20 = [f"\"u{i+1}\"" for i in range(20)]
+      cursor.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
+      user_profile = np.array([list(cursor.fetchall()[0])])
       content_restaurant_ids = get_contbased_recoms(user_profile)
-      result = content_restaurant_ids
+      categories = restaurant_df.loc[restaurant_df.id.isin(content_restaurant_ids)].category.values
+      clean_categories = set([x.strip() for x in ",".join([str(x) for x in list(categories)]).split(',')])
+
       return json.dumps({
-            "restaurant_id": ",".join([str(x) for x in list(result)])
+            "category": ",".join(list(clean_categories))
       })
 
 
