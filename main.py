@@ -15,6 +15,7 @@ import datetime
 # sys.path.append("src")
 from src.db_connection import conn
 from src.predict_collab_filtering import predict_collab_filtering
+from src.collab_constants import *
 # to run python3 -m uvicorn main:app --reload
 
 app = FastAPI()
