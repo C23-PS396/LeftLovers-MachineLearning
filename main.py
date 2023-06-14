@@ -64,6 +64,21 @@ def get_contbased_recoms(user_profile):
       return restaurant_ids
 
 
+def top_5 (categories):
+      d = {}
+      for sub_categories in categories:
+            for category in sub_categories.split(', '):
+                  category = category.strip()
+                  if category in d:
+                        d[category] += 1
+                  else:
+                        d[category] = 1
+      sorted_cats = sorted(d.items(), key= lambda x:x[1])[:5]
+      top_5_cats = [x[0] for x in sorted_cats]
+      print(top_5_cats)
+      return top_5_cats
+
+
 @app.get("/")
 async def root():
       return {"message" : "Selamat Datang!"}
@@ -100,10 +115,10 @@ async def get_prediction(user_id: str):
       user_profile = np.array([list(cursor.fetchall()[0])])
       content_restaurant_ids = get_contbased_recoms(user_profile)
       categories = restaurant_df.loc[restaurant_df.id.isin(content_restaurant_ids)].category.values
-      clean_categories = set([x.strip() for x in ",".join([str(x) for x in list(categories)]).split(',')])
-
+      top_5_categories = top_5(categories)
+      cursor.execute('SELECT ')
       return json.dumps({
-            "category": ",".join(list(clean_categories))
+            "category": ",".join(top_5_categories)
       })
 
 
