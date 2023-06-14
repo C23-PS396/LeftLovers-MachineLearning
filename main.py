@@ -129,6 +129,7 @@ async def get_prediction(user_id: str):
 
       collab_res = predict_collab_filtering(user_id)
       res += collab_res
+      res = list(set(res))
       return responses.JSONResponse(content=res)
 
 
