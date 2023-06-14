@@ -2,7 +2,7 @@
 import psycopg2
 
 # connect to db
-conn = psycopg2.connect(
+_conn = psycopg2.connect(
     host = "34.101.83.17",
     port = "5432",
     database = "capstone-db",
@@ -10,8 +10,6 @@ conn = psycopg2.connect(
     user = "postgres"
 )
 
-# open cursor
-cursor = conn.cursor()
 
 
 

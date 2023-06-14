@@ -3,44 +3,64 @@ A py program to create collab filtering tf file
 input : all new transaction
 output : collab-filtering.json
 """
-
+import numpy as np
 import pandas as pd
 import tensorflow as tf
 import sys
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-import json
+from sklearn.preprocessing import OrdinalEncoder
+import pickle
 
 from create_random_transaction import create_random_transaction
+from get_all_rating import get_all_rating, columns
+
+folder = "../collab-filtering-model"
 
 def train_collab_filtering():
     # ---<Input>---
 
     # dataframe of transaction
-    df = create_random_transaction()
-
+    # df = create_random_transaction()
+    df = get_all_rating(get_from_db=True, generate_random=True)
+    # print(df)
     # ---<Input>---
 
 
     # Data Preprocessing
 
 
-    n_users = df['User_id'].nunique()
-    n_items = df['Food_id'].nunique()
-
-    user_encoder = LabelEncoder()
-    item_encoder = LabelEncoder()
-    user_encoder.fit(n_users)
-    item_encoder.fit(n_items)
+    n_users = df[columns[0]].nunique() + 1
+    n_items = df[columns[1]].nunique() + 1
 
 
-    n_users = user_encoder.transform(n_users) + 1
-    n_items = user_encoder.transform(n_items) + 1
+    user_ids = np.array(df[columns[0]].values)
+    item_ids = np.array(df[columns[1]].values)
+    ratings = np.array(df[columns[2]].values)
+
+    
+    print(user_ids)
+
+    print(item_ids)
+
+    print(ratings)
+
+    user_ids_reshaped = user_ids.reshape(-1,1)
+    item_ids_reshaped = item_ids.reshape(-1,1)
+
+    user_encoder = OrdinalEncoder()
+    item_encoder = OrdinalEncoder()
+    user_encoder.fit(user_ids_reshaped)
+    item_encoder.fit(item_ids_reshaped)
+
+    user_ids = user_encoder.transform(user_ids.reshaped)
+    item_ids = item_encoder.transform(item_ids.reshaped)
+
+    user_ids = np.array(user_ids.reshape(1,-1)[0], dtype=np.int32)
+    item_ids = np.array(item_ids.reshape(1,-1)[0], dtype=np.int32)
+    ratings = np.array(df[columns[2]], dtype=np.int32)
 
 
-    user_ids = user_encoder.transform(df['User_id'].values)
-    item_ids = user_encoder.transform(df['Food_id'].values)
-    ratings = df['Rating'].values
+
 
     # Splitting into Training and Test sets
     train_user_ids, test_user_ids, train_item_ids, test_item_ids, train_ratings, test_ratings = train_test_split(
@@ -92,11 +112,10 @@ def train_collab_filtering():
     test_loss = model.evaluate([test_user_ids, test_item_ids], test_ratings)
     print("Test Loss:", test_loss)
 
+    model.save(folder)
+    with open(f"{folder}/user_encoder.pkl", "wb") as f:
+        pickle.dump(user_encoder, f)
+    with open(f"{folder}/item_encoder.pkl", "wb") as f:
+        pickle.dump(item_encoder, f)
 
-    model.save('collab-filtering-model')
-    with open("collab-filtering-model/user_encoder.json", "w") as f:
-        json_data = json.dumps(user_encoder)
-        f.write(json_data)
-    with open("collab-filtering-model/item_encoder.json", "w") as f:
-        json_data = json.dumps(item_encoder)
-        f.write(json_data)
+train_collab_filtering()

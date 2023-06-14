@@ -6,9 +6,9 @@ import random
 import string
 
 characters = string.ascii_letters + string.digits
+columns = ['User_id', 'Merchant_id', 'Rating']
 
 def get_all_rating(get_from_db : bool = True, generate_random : bool = False):
-    columns = ['User_id', 'Merchant_id', 'Rating']
     df = pd.DataFrame(columns=columns)
     if get_from_db:
         query = ' SELECT "customerId", "merchantId", "rating" FROM "Review" WHERE "rating" > -1 '
