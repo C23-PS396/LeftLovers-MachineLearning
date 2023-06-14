@@ -1,11 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, responses
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import run
 import numpy as np
 import tensorflow as tf
 import pandas as pd
 import os
-import json
 import pickle
 import sklearn
 import datetime
@@ -115,11 +114,18 @@ async def get_prediction(user_id: str):
       user_profile = np.array([list(cursor.fetchall()[0])])
       content_restaurant_ids = get_contbased_recoms(user_profile)
       categories = restaurant_df.loc[restaurant_df.id.isin(content_restaurant_ids)].category.values
-      top_5_categories = top_5(categories)
-      cursor.execute('SELECT ')
-      return json.dumps({
-            "category": ",".join(top_5_categories)
-      })
+      categories = [x.strip() for sub_cat in categories for x in sub_cat.split(', ')]
+      
+      first_line = 'SELECT DISTINCT f."merchantId" from "Food" as f JOIN'
+      second_line = [
+      '(SELECT cf."B" as "food_id" from "_CategoryToFood" as cf join "Category" as c on c.id = cf."A" where c.name in ',
+      f'({", ".join(["%s"] * len(categories))})) as cat on f.id = cat."food_id";'
+      ]
+
+      query_line = first_line + ''.join(second_line)
+      cursor.execute(query_line, categories)
+      res = [id[0] for id in cursor.fetchall()]
+      return responses.JSONResponse(content=res)
 
 
 if __name__ == "__main__":
