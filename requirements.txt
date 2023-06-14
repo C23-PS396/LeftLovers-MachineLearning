@@ -4,7 +4,4 @@ fastapi==0.96.0
 numpy==1.24.3
 pandas==2.0.2
 scikit-learn==1.2.2
-<<<<<<< HEAD
 psycopg2-binary==2.9.6
-=======
->>>>>>> parent of 17ca382 (temp commit)
