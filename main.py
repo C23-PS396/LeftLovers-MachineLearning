@@ -5,9 +5,13 @@ import numpy as np
 import tensorflow as tf
 import pandas as pd
 import os
+import sys
+import json
 import pickle
 import sklearn
 import datetime
+
+sys.path.append("src")
 from db_connection import cursor, conn
 # to run python3 -m uvicorn main:app --reload
 
@@ -67,6 +71,13 @@ def get_contbased_recoms(user_profile):
 async def root():
       return {"message" : "Selamat Datang!"}
 
+@app.get("/newTransaction")
+async def new_transaction(customerId, merchantId, rating):
+      if not bool(customerId) or not bool(merchantId) or not bool(rating):
+            return "400"
+      print(f"Customer : {customerId}, Merchant : {merchantId}, Rating : {rating}")
+      return "200"
+
 
 @app.get("/updateUserProfile")
 async def update_user_profile(user_id: str, cuisine: str):
@@ -94,6 +105,8 @@ async def update_user_profile(user_id: str, cuisine: str):
 
 @app.get("/getPrediction")
 async def get_prediction(user_id: str):
+      if not bool(user_id):
+            return []
       s_20 = [f"\"u{i+1}\"" for i in range(20)]
       cursor.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
       user_profile = np.array([list(cursor.fetchall()[0])])
