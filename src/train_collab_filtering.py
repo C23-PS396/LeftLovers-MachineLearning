@@ -7,22 +7,20 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import sys
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OrdinalEncoder
 import pickle
 
-from create_random_transaction import create_random_transaction
 from get_all_rating import get_all_rating, columns
-
-folder = "../collab-filtering-model"
+from collab_constants import MODEL_PATH, USER_ENCODER_PATH, ITEM_ENCODER_PATH
 
 def train_collab_filtering():
     # ---<Input>---
 
     # dataframe of transaction
-    # df = create_random_transaction()
-    df = get_all_rating(get_from_db=True, generate_random=True)
-    # print(df)
+    df = get_all_rating(get_from_db=True, do_generate_random=False)
+
     # ---<Input>---
 
 
@@ -37,13 +35,6 @@ def train_collab_filtering():
     item_ids = np.array(df[columns[1]].values)
     ratings = np.array(df[columns[2]].values)
 
-    
-    print(user_ids)
-
-    print(item_ids)
-
-    print(ratings)
-
     user_ids_reshaped = user_ids.reshape(-1,1)
     item_ids_reshaped = item_ids.reshape(-1,1)
 
@@ -52,8 +43,8 @@ def train_collab_filtering():
     user_encoder.fit(user_ids_reshaped)
     item_encoder.fit(item_ids_reshaped)
 
-    user_ids = user_encoder.transform(user_ids.reshaped)
-    item_ids = item_encoder.transform(item_ids.reshaped)
+    user_ids = user_encoder.transform(user_ids_reshaped)
+    item_ids = item_encoder.transform(item_ids_reshaped)
 
     user_ids = np.array(user_ids.reshape(1,-1)[0], dtype=np.int32)
     item_ids = np.array(item_ids.reshape(1,-1)[0], dtype=np.int32)
@@ -112,10 +103,10 @@ def train_collab_filtering():
     test_loss = model.evaluate([test_user_ids, test_item_ids], test_ratings)
     print("Test Loss:", test_loss)
 
-    model.save(folder)
-    with open(f"{folder}/user_encoder.pkl", "wb") as f:
+    model.save(MODEL_PATH)
+    with open(os.path.join(USER_ENCODER_PATH), "wb") as f:
         pickle.dump(user_encoder, f)
-    with open(f"{folder}/item_encoder.pkl", "wb") as f:
+    with open(os.path.join(ITEM_ENCODER_PATH), "wb") as f:
         pickle.dump(item_encoder, f)
 
 train_collab_filtering()

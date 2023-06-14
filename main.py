@@ -12,7 +12,8 @@ import sklearn
 import datetime
 
 sys.path.append("src")
-from db_connection import cursor, conn
+from db_connection import conn
+from predict_collab_filtering import predict_collab_filtering
 # to run python3 -m uvicorn main:app --reload
 
 app = FastAPI()
@@ -21,8 +22,10 @@ ORIGINS = ['*']
 METHODS = ['*']
 HEADERS = ['*']
 
-PICKLE_PATH = './pickle-objects/'
-CSV_PATH = './csv-files/'
+cwd = os.get_cwd()
+
+PICKLE_PATH = os.path.join(cwd, "pickle-objects")
+CSV_PATH = os.path.join(cwd, "csv-files")
 
 
 app.add_middleware(
@@ -40,11 +43,11 @@ def load_pickle(path):
             
 
 def load_assests():
-      model = tf.keras.models.load_model('./content-based-model')
-      scaler_user = load_pickle(PICKLE_PATH + 'scaler_user.pkl')
-      scaler_target = load_pickle(PICKLE_PATH + 'scaler_target.pkl')
-      item_vector = load_pickle(PICKLE_PATH + 'item_vector.pkl')
-      restaurant_df = pd.read_csv(CSV_PATH + 'restaurant_recommended.csv')
+      model = tf.keras.models.load_model(os.path.join(cwd, "content-based-model"))
+      scaler_user = load_pickle(os.path.join(PICKLE_PATH, "scaler_user.pkl"))
+      scaler_target = load_pickle(os.path.join(PICKLE_PATH, "scaler_target.pkl"))
+      item_vector = load_pickle(os.path.join(PICKLE_PATH, item_vector.pkl))
+      restaurant_df = pd.read_csv(os.path.join(PICKLE_PATH, "restaurant_recommended.csv"))
       return model, scaler_user, scaler_target, item_vector, restaurant_df
 
 
@@ -89,7 +92,7 @@ async def update_user_profile(user_id: str, cuisine: str):
             if cui in res_cui_arr:
                   ind = res_cui_arr.index(cui)
                   temp[ind] += 1
-      
+      cursor = conn.cursor()
       cursor.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
       res = cursor.fetchall()[0]
       
@@ -119,10 +122,13 @@ async def get_prediction(user_id: str):
       '(SELECT cf."B" as "food_id" from "_CategoryToFood" as cf join "Category" as c on c.id = cf."A" where c.name in ',
       f'({", ".join(["%s"] * len(categories))})) as cat on f.id = cat."food_id";'
       ]
-
+      cursor = conn.cursor()
       query_line = first_line + ''.join(second_line)
       cursor.execute(query_line, categories)
       res = [id[0] for id in cursor.fetchall()]
+
+      collab_res = predict_collab_filtering(user_id)
+      res += collab_res
       return responses.JSONResponse(content=res)
 
 

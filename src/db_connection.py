@@ -2,7 +2,7 @@
 import psycopg2
 
 # connect to db
-_conn = psycopg2.connect(
+conn = psycopg2.connect(
     host = "34.101.83.17",
     port = "5432",
     database = "capstone-db",
