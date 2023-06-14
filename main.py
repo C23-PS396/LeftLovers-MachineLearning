@@ -63,21 +63,6 @@ def get_contbased_recoms(user_profile):
       return restaurant_ids
 
 
-def top_5 (categories):
-      d = {}
-      for sub_categories in categories:
-            for category in sub_categories.split(', '):
-                  category = category.strip()
-                  if category in d:
-                        d[category] += 1
-                  else:
-                        d[category] = 1
-      sorted_cats = sorted(d.items(), key= lambda x:x[1])[:5]
-      top_5_cats = [x[0] for x in sorted_cats]
-      print(top_5_cats)
-      return top_5_cats
-
-
 @app.get("/")
 async def root():
       return {"message" : "Selamat Datang!"}
