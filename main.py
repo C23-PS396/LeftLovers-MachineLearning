@@ -45,8 +45,8 @@ def load_pickle(path):
             
 
 def load_assests():
-      # model = tf.keras.models.load_model(os.path.join(cwd, "content-based-model"))
-      model = ""
+      model = tf.keras.models.load_model(os.path.join(cwd, "content-based-model"))
+      # model = ""
       scaler_user = load_pickle(os.path.join(PICKLE_PATH, "scaler_user.pkl"))
       scaler_target = load_pickle(os.path.join(PICKLE_PATH, "scaler_target.pkl"))
       item_vector = load_pickle(os.path.join(PICKLE_PATH, "item_vector.pkl"))
