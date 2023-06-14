@@ -1,12 +1,13 @@
 import os
-from db_connection import conn
-
 import pandas as pd
 import random
 import string
 
+from db_connection import conn
+from collab_constants import COLUMNS
+
 characters = string.ascii_letters + string.digits
-columns = ['User_id', 'Merchant_id', 'Rating']
+columns = COLUMNS
 
 def generate_random(n_user=1000, n_merchant=100, n_transaction=10000):
     length = 16

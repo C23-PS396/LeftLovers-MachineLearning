@@ -12,8 +12,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OrdinalEncoder
 import pickle
 
-from get_all_rating import get_all_rating, columns
-from collab_constants import MODEL_PATH, USER_ENCODER_PATH, ITEM_ENCODER_PATH
+from get_all_rating import get_all_rating
+from collab_constants import MODEL_PATH, USER_ENCODER_PATH, ITEM_ENCODER_PATH, COLUMNS
 
 def train_collab_filtering():
     # ---<Input>---
@@ -27,13 +27,13 @@ def train_collab_filtering():
     # Data Preprocessing
 
 
-    n_users = df[columns[0]].nunique() + 1
-    n_items = df[columns[1]].nunique() + 1
+    n_users = df[COLUMNS[0]].nunique() + 1
+    n_items = df[COLUMNS[1]].nunique() + 1
 
 
-    user_ids = np.array(df[columns[0]].values)
-    item_ids = np.array(df[columns[1]].values)
-    ratings = np.array(df[columns[2]].values)
+    user_ids = np.array(df[COLUMNS[0]].values)
+    item_ids = np.array(df[COLUMNS[1]].values)
+    ratings = np.array(df[COLUMNS[2]].values)
 
     user_ids_reshaped = user_ids.reshape(-1,1)
     item_ids_reshaped = item_ids.reshape(-1,1)
@@ -48,7 +48,7 @@ def train_collab_filtering():
 
     user_ids = np.array(user_ids.reshape(1,-1)[0], dtype=np.int32)
     item_ids = np.array(item_ids.reshape(1,-1)[0], dtype=np.int32)
-    ratings = np.array(df[columns[2]], dtype=np.int32)
+    ratings = np.array(df[COLUMNS[2]], dtype=np.int32)
 
 
 
