@@ -108,6 +108,7 @@ async def update_user_profile(user_id: str, cuisine: str):
 
 @app.get("/getPrediction")
 async def get_prediction(user_id: str):
+      cursor = conn.cursor()
       if not bool(user_id):
             return []
       s_20 = [f"\"u{i+1}\"" for i in range(20)]
@@ -122,7 +123,7 @@ async def get_prediction(user_id: str):
       '(SELECT cf."B" as "food_id" from "_CategoryToFood" as cf join "Category" as c on c.id = cf."A" where c.name in ',
       f'({", ".join(["%s"] * len(categories))})) as cat on f.id = cat."food_id";'
       ]
-      cursor = conn.cursor()
+      
       query_line = first_line + ''.join(second_line)
       cursor.execute(query_line, categories)
       res = [id[0] for id in cursor.fetchall()]
