@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 import pandas as pd
 import os
+import asyncio
 import sys
 import json
 import pickle
@@ -74,10 +75,29 @@ def get_contbased_recoms(user_profile):
 async def root():
       return {"message" : "Selamat Datang!"}
 
+lock = [asyncio.Lock(), asyncio.Lock()]
+new_transaction = [open(os.path.join(NEW_TRANSACTION_PATH, NEW_TRANSACTION_FILE[0])), open(os.path.join(NEW_TRANSACTION_PATH, NEW_TRANSACTION_FILE[1]))]
+index = 0
+index_lock = asyncio.Lock()
 @app.get("/newTransaction")
 async def new_transaction(customerId, merchantId, rating):
       if not bool(customerId) or not bool(merchantId) or not bool(rating):
             return "400"
+      await index_lock.acquire()
+      try:
+            acquired = lock[index].acquire_nowait()
+      finally:
+            index_lock.release()
+      if acquired:
+            try:
+                  # call retrain_collab_filtering.py
+                  pass
+            finally:
+                  acquired.release()
+                  return "201"
+                  #train complete
+      
+
       print(f"Customer : {customerId}, Merchant : {merchantId}, Rating : {rating}")
       return "200"
 

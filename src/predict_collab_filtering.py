@@ -12,6 +12,12 @@ with open(ITEM_ENCODER_PATH, "rb") as f:
 
 
 
+model = tf.keras.models.load_model(MODEL_PATH)
+with open(USER_ENCODER_PATH, "rb") as f:
+    user_encoder = pickle.load(f)
+with open(ITEM_ENCODER_PATH, "rb") as f:
+    item_encoder = pickle.load(f)
+
 def predict_collab_filtering(user_id):
     # print(user_encoder.categories_)
     # print(item_encoder.categories_)
