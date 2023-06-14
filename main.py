@@ -11,9 +11,9 @@ import pickle
 import sklearn
 import datetime
 
-sys.path.append("src")
-from db_connection import conn
-from predict_collab_filtering import predict_collab_filtering
+# sys.path.append("src")
+from src.db_connection import conn
+from src.predict_collab_filtering import predict_collab_filtering
 # to run python3 -m uvicorn main:app --reload
 
 app = FastAPI()
@@ -22,7 +22,7 @@ ORIGINS = ['*']
 METHODS = ['*']
 HEADERS = ['*']
 
-cwd = os.get_cwd()
+cwd = os.getcwd()
 
 PICKLE_PATH = os.path.join(cwd, "pickle-objects")
 CSV_PATH = os.path.join(cwd, "csv-files")
@@ -46,8 +46,8 @@ def load_assests():
       model = tf.keras.models.load_model(os.path.join(cwd, "content-based-model"))
       scaler_user = load_pickle(os.path.join(PICKLE_PATH, "scaler_user.pkl"))
       scaler_target = load_pickle(os.path.join(PICKLE_PATH, "scaler_target.pkl"))
-      item_vector = load_pickle(os.path.join(PICKLE_PATH, item_vector.pkl))
-      restaurant_df = pd.read_csv(os.path.join(PICKLE_PATH, "restaurant_recommended.csv"))
+      item_vector = load_pickle(os.path.join(PICKLE_PATH, "item_vector.pkl"))
+      restaurant_df = pd.read_csv(os.path.join(CSV_PATH, "restaurant_recommended.csv"))
       return model, scaler_user, scaler_target, item_vector, restaurant_df
 
 

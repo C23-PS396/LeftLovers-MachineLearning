@@ -1,7 +1,8 @@
 import os
 
-SRC_PATH = os.getcwd()
-PARENT_DIR = os.path.dirname(SRC_PATH)
+# SRC_PATH = os.getcwd()
+# PARENT_DIR = os.path.dirname(SRC_PATH)
+PARENT_DIR = os.getcwd()
 
 MODEL_PATH = os.path.join(PARENT_DIR, "collab-filtering-model")
 PICKLE_PATH = os.path.join(PARENT_DIR, "pickle-objects")

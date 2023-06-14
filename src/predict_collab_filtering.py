@@ -2,14 +2,17 @@
 import pickle
 import numpy as np
 import tensorflow as tf
-from collab_constants import MODEL_PATH, USER_ENCODER_PATH, ITEM_ENCODER_PATH
+from src.collab_constants import MODEL_PATH, USER_ENCODER_PATH, ITEM_ENCODER_PATH
+
+model = tf.keras.models.load_model(MODEL_PATH)
+with open(USER_ENCODER_PATH, "rb") as f:
+    user_encoder = pickle.load(f)
+with open(ITEM_ENCODER_PATH, "rb") as f:
+    item_encoder = pickle.load(f)
+
+
 
 def predict_collab_filtering(user_id):
-    model = tf.keras.models.load_model(MODEL_PATH)
-    with open(USER_ENCODER_PATH, "rb") as f:
-        user_encoder = pickle.load(f)
-    with open(ITEM_ENCODER_PATH, "rb") as f:
-        item_encoder = pickle.load(f)
     # print(user_encoder.categories_)
     # print(item_encoder.categories_)
     n_item = len(item_encoder.categories_[0])
