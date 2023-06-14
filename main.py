@@ -45,7 +45,8 @@ def load_pickle(path):
             
 
 def load_assests():
-      model = tf.keras.models.load_model(os.path.join(cwd, "content-based-model"))
+      # model = tf.keras.models.load_model(os.path.join(cwd, "content-based-model"))
+      model = ""
       scaler_user = load_pickle(os.path.join(PICKLE_PATH, "scaler_user.pkl"))
       scaler_target = load_pickle(os.path.join(PICKLE_PATH, "scaler_target.pkl"))
       item_vector = load_pickle(os.path.join(PICKLE_PATH, "item_vector.pkl"))
@@ -77,7 +78,7 @@ async def root():
       return {"message" : "Selamat Datang!"}
 
 lock = [asyncio.Lock(), asyncio.Lock()]
-new_transaction = [open(os.path.join(NEW_TRANSACTION_PATH, NEW_TRANSACTION_FILE[0])), open(os.path.join(NEW_TRANSACTION_PATH, NEW_TRANSACTION_FILE[1]))]
+# new_transaction = [open(os.path.join(NEW_TRANSACTION_PATH, NEW_TRANSACTION_FILE[0])), open(os.path.join(NEW_TRANSACTION_PATH, NEW_TRANSACTION_FILE[1]))]
 index = 0
 index_lock = asyncio.Lock()
 @app.get("/newTransaction")
