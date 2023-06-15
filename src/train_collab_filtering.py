@@ -20,7 +20,7 @@ def train_collab_filtering():
     # ---<Input>---
 
     # dataframe of transaction
-    df = get_all_rating(get_from_db=True, do_generate_random=True)
+    df = get_all_rating(get_from_db=True, do_generate_random=False)
 
     # ---<Input>---
 
