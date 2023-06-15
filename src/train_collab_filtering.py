@@ -20,7 +20,7 @@ def train_collab_filtering():
     # ---<Input>---
 
     # dataframe of transaction
-    df = get_all_rating(get_from_db=True, do_generate_random=False)
+    df = get_all_rating(get_from_db=True, do_generate_random=True)
 
     # ---<Input>---
 
@@ -43,6 +43,9 @@ def train_collab_filtering():
 
     user_ids = user_encoder.transform(user_ids)
     item_ids = item_encoder.transform(item_ids)
+
+    # user_ids = np.array(user_ids, dtype=np.int32)
+    # item_ids = np.array(item_ids, dtype=np.int32)
     ratings = np.array(df[COLUMNS[2]], dtype=np.int32)
 
 
@@ -97,7 +100,7 @@ def train_collab_filtering():
     # Model Evaluation
     test_loss = model.evaluate([test_user_ids, test_item_ids], test_ratings)
     print("Test Loss:", test_loss)
-
+    temp = model.predict([np.array([0]), np.array([0])])
     model.save(MODEL_PATH)
     with open(os.path.join(USER_ENCODER_PATH), "wb") as f:
         pickle.dump(user_encoder, f)

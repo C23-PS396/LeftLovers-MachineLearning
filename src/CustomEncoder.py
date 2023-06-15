@@ -10,7 +10,9 @@ class CustomEncoder():
         return self._count
 
     def key_exist(self, key):
-        return bool(self._transform_dict.get(key))
+        if self._transform_dict.get(key) != None:
+            return True
+        return False
 
     def fit(self, unique_arr):
         """

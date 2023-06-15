@@ -22,11 +22,9 @@ class PredictCollabFiltering():
         if not self.user_encoder.key_exist(user_id):
             return self.mostPopularRestaurant.get()
         encoded_id = self.user_encoder.transform(np.array(user_id))
-        encoded_id = np.full((n_item, encoded_id[0]))
+        encoded_id = np.full(n_item, encoded_id)
         res = self.model.predict([np.full(n_item, encoded_id), np.array([i for i in range(n_item)])])
-        top_10_index = np.argsort(res, axis=0)[-10:].flatten()
+        top_10_index = np.argsort(res, axis=0)[-10:]
         res = self.item_encoder.inverse_transform(top_10_index).tolist()
         res = [item[0] for item in res]
         return res
-
-
