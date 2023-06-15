@@ -3,8 +3,8 @@ import pandas as pd
 import random
 import string
 
-from db_connection import conn
-from collab_constants import COLUMNS
+from src.db_connection import conn
+from src.collab_constants import COLUMNS
 
 characters = string.ascii_letters + string.digits
 columns = COLUMNS

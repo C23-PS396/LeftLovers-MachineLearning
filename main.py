@@ -14,7 +14,7 @@ import datetime
 
 # sys.path.append("src")
 from src.db_connection import conn
-from src.predict_collab_filtering import predict_collab_filtering
+from src.PredictCollabFiltering import PredictCollabFiltering
 from src.collab_constants import *
 # to run python3 -m uvicorn main:app --reload
 
@@ -56,6 +56,7 @@ def load_assests():
 
 model, scaler_user, scaler_target, item_vector, restaurant_df = load_assests()
 
+collab_model = PredictCollabFiltering()
 
 def get_contbased_recoms(user_profile):
       user_arr = user_profile
@@ -148,7 +149,7 @@ async def get_prediction(user_id: str = ""):
       cursor.execute(query_line, categories)
       res = [id[0] for id in cursor.fetchall()]
 
-      collab_res = predict_collab_filtering(user_id)
+      collab_res = collab_model.predict(user_id)
       res += collab_res
       res = list(set(res))
       return responses.JSONResponse(content=res)
