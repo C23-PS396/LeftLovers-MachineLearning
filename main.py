@@ -45,8 +45,8 @@ def load_pickle(path):
             
 
 def load_assests():
-      model = tf.keras.models.load_model(os.path.join(cwd, "content-based-model"))
-      # model = ""
+      # model = tf.keras.models.load_model(os.path.join(cwd, "content-based-model"))
+      model = ""
       scaler_user = load_pickle(os.path.join(PICKLE_PATH, "scaler_user.pkl"))
       scaler_target = load_pickle(os.path.join(PICKLE_PATH, "scaler_target.pkl"))
       item_vector = load_pickle(os.path.join(PICKLE_PATH, "item_vector.pkl"))
@@ -78,7 +78,7 @@ async def root():
       return {"message" : "Selamat Datang!"}
 
 lock = [asyncio.Lock(), asyncio.Lock()]
-# new_transaction = [open(os.path.join(NEW_TRANSACTION_PATH, NEW_TRANSACTION_FILE[0])), open(os.path.join(NEW_TRANSACTION_PATH, NEW_TRANSACTION_FILE[1]))]
+new_transaction = [open(os.path.join(NEW_TRANSACTION_PATH, NEW_TRANSACTION_FILE[0]),"w"), open(os.path.join(NEW_TRANSACTION_PATH, NEW_TRANSACTION_FILE[1]),"w")]
 index = 0
 index_lock = asyncio.Lock()
 @app.get("/newTransaction")
@@ -99,7 +99,6 @@ async def new_transaction(customerId, merchantId, rating):
                   return "201"
                   #train complete
       
-
       print(f"Customer : {customerId}, Merchant : {merchantId}, Rating : {rating}")
       return "200"
 
@@ -129,10 +128,10 @@ async def update_user_profile(user_id: str, cuisine: str):
 
 
 @app.get("/getPrediction")
-async def get_prediction(user_id: str):
-      cursor = conn.cursor()
-      if not bool(user_id):
+async def get_prediction(user_id: str = ""):
+      if user_id == "":
             return []
+      cursor = conn.cursor()
       s_20 = [f"\"u{i+1}\"" for i in range(20)]
       cursor.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
       user_profile = np.array([list(cursor.fetchall()[0])])
@@ -145,7 +144,6 @@ async def get_prediction(user_id: str):
       '(SELECT cf."B" as "food_id" from "_CategoryToFood" as cf join "Category" as c on c.id = cf."A" where c.name in ',
       f'({", ".join(["%s"] * len(categories))})) as cat on f.id = cat."food_id";'
       ]
-      
       query_line = first_line + ''.join(second_line)
       cursor.execute(query_line, categories)
       res = [id[0] for id in cursor.fetchall()]

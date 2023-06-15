@@ -12,7 +12,6 @@ ITEM_ENCODER_PATH = os.path.join(PICKLE_PATH, "item,_encoder.pkl")
 COLUMNS = ["customerId", "merchantId", "rating"]
 
 NEW_TRANSACTION_PATH = os.path.join(PARENT_DIR, "csv-files")
-NEW_TRANSACTION_PATH = os.path.join(NEW_TRANSACTION_PATH, "new_transaction.csv")
 NEW_TRANSACTION_FILE = ["new_transaction1.csv", "new_transaction2.csv"]
 
 
