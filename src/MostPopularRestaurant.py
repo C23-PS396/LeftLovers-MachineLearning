@@ -1,4 +1,5 @@
-from src.db_connection import conn
+# from src.db_connection import conn
+from src.DbConnection import DbConnection
 
 _table = "\"Transaction\""
 _columns = "\"merchantId\", COUNT(\"merchantId\") as count"
@@ -9,12 +10,14 @@ query = f'SELECT {_columns} FROM {_table} GROUP BY {_group} ORDER BY {_order} DE
 
 class MostPopularRestaurant():
     def __init__(self):
-        self.cursor = conn.cursor()
+        self.dbConnection = DbConnection()
+        # self.cursor = conn.cursor()
         self.most_popular_restaurant = []
 
     def update(self):
-        self.cursor.execute(query)
-        res = self.cursor.fetchall()
+        # self.cursor.execute(query)
+        # res = self.cursor.fetchall()
+        res = self.dbConnection.execute(query)
         self.most_popular_restaurant = []
         for row in res:
             self.most_popular_restaurant.append(row[0])

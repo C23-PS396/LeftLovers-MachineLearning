@@ -3,7 +3,7 @@ import pandas as pd
 import random
 import string
 
-from src.db_connection import conn
+from src.DbConnection import DbConnection
 from src.collab_constants import COLUMNS
 
 characters = string.ascii_letters + string.digits
@@ -29,9 +29,8 @@ def get_all_rating(get_from_db : bool = True, do_generate_random : bool = False)
     df = pd.DataFrame(columns=columns)
     if get_from_db:
         query = ' SELECT "customerId", "merchantId", "rating" FROM "Review" WHERE "rating" > -1 '
-        cursor = conn.cursor()
-        cursor.execute(query)
-        result = cursor.fetchall()
+        dbConnection = DbConnection()
+        result = dbConnection.execute(query)
         df_temp = pd.DataFrame(result)
         df_temp.columns = columns
         df = pd.concat([df, df_temp], ignore_index=True)

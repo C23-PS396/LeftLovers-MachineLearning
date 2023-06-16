@@ -22,4 +22,3 @@ conn = psycopg2.connect(
 
 
 
-
