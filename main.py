@@ -13,12 +13,9 @@ import sklearn
 import datetime
 
 # sys.path.append("src")
+from src.db_connection import conn
 from src.PredictCollabFiltering import PredictCollabFiltering
-collab_model = PredictCollabFiltering()
 from src.collab_constants import *
-# from src.db_connection import conn
-from src.DbConnection import DbConnection
-dbConnection = DbConnection()
 # to run python3 -m uvicorn main:app --reload
 
 app = FastAPI()
@@ -58,6 +55,8 @@ def load_assests():
 
 
 model, scaler_user, scaler_target, item_vector, restaurant_df = load_assests()
+
+collab_model = PredictCollabFiltering()
 
 def get_contbased_recoms(user_profile):
       user_arr = user_profile
@@ -115,21 +114,17 @@ async def update_user_profile(user_id: str, cuisine: str):
             if cui in res_cui_arr:
                   ind = res_cui_arr.index(cui)
                   temp[ind] += 1
-      # cursor = conn.cursor()
-      # cursor.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
-      # res = cursor.fetchall()[0]
-      res = dbConnection.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
-      res = res[0]
-
+      cursor = conn.cursor()
+      cursor.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
+      res = cursor.fetchall()[0]
+      
       for i in range(len(res)):
             temp[i] += res[i]
 
       values = temp
       columns = ", ".join([f'"u{i+1}"=%s' for i in range(20)])
-      # res = cursor.execute('UPDATE "UserProfile" SET ' + columns + ' WHERE "id" = %s;', values + [user_id])
-      res = dbConnection.execute('UPDATE "UserProfile" SET ' + columns + ' WHERE "id" = %s;', values + [user_id])
-      # conn.commit()
-      dbConnection.commit()
+      res = cursor.execute('UPDATE "UserProfile" SET ' + columns + ' WHERE "id" = %s;', values + [user_id])
+      conn.commit()
       return '200'
 
 
@@ -137,15 +132,11 @@ async def update_user_profile(user_id: str, cuisine: str):
 async def get_prediction(user_id: str = ""):
       if user_id == "":
             return []
-      # cursor = conn.cursor()
+      cursor = conn.cursor()
       s_20 = [f"\"u{i+1}\"" for i in range(20)]
-      # cursor.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
-      # user_profile = np.array([list(cursor.fetchall()[0])])
-
-      res = dbConnection.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
-      user_profile = np.array([list(res[0])])
+      cursor.execute(f"SELECT {','.join(s_20)} FROM \"UserProfile\" WHERE \"id\"=" + '%s', (user_id,))
+      user_profile = np.array([list(cursor.fetchall()[0])])
       content_restaurant_ids = get_contbased_recoms(user_profile)
-      
       categories = restaurant_df.loc[restaurant_df.id.isin(content_restaurant_ids)].category.values
       categories = [x.strip() for sub_cat in categories for x in sub_cat.split(', ')]
       
@@ -155,10 +146,8 @@ async def get_prediction(user_id: str = ""):
       f'({", ".join(["%s"] * len(categories))})) as cat on f.id = cat."food_id";'
       ]
       query_line = first_line + ''.join(second_line)
-      # cursor.execute(query_line, categories)
-      # res = [id[0] for id in cursor.fetchall()]
-      temp = dbConnection.execute(query_line, categories)
-      res = [id[0] for id in temp]
+      cursor.execute(query_line, categories)
+      res = [id[0] for id in cursor.fetchall()]
 
       collab_res = collab_model.predict(user_id)
       res += collab_res
